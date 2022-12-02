@@ -1,0 +1,9 @@
+input.txt
+.vscode
+bin/
+obj/
+.vs/
+Debug/
+Release/
+*vcxproj.user
+*.exe
