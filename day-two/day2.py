@@ -34,7 +34,8 @@ losses = {
 }
 
 
-def solution1():
+
+def part1():
     total_score = 0
     for line in input:
         theirs, mine = line.split()
@@ -50,4 +51,40 @@ def solution1():
 
     print(total_score)
 
-solution1()
+#part1()
+
+
+class GameResult(IntEnum):
+    WIN = 1
+    LOSS = 2
+    DRAW = 3
+
+game_result_code_to_enum = {
+    "X" : GameResult.LOSS,
+    "Y" : GameResult.DRAW,
+    "Z" : GameResult.WIN,
+}
+
+
+wins = { losses[k]:k for k in losses } # I'm lazy, what can I say
+
+def part2():
+    total_score = 0
+    for line in input:
+        theirs, result = line.split()
+        their_move = opponent_move_code_to_types[theirs]
+        game_result = game_result_code_to_enum[result]
+        if game_result == GameResult.DRAW:
+            total_score += 3
+            total_score += scores[their_move]
+        elif game_result == GameResult.WIN:
+            total_score += 6
+            my_move = losses[their_move]
+            total_score += scores[my_move]
+        elif game_result == GameResult.LOSS:
+            my_move = wins[their_move]
+            total_score += scores[my_move]
+
+    print(total_score)
+
+part2()
