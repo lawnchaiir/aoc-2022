@@ -44,7 +44,7 @@ def build_stacks(input, key_index):
 stacks = build_stacks(input, key_index)
 
 
-class Solver(object):
+class Solver(ABC):
 
     _MOVEMENT_PROCEDURE_REGEX = re.compile(r"move (\d+) from (\d+) to (\d+)")
 
