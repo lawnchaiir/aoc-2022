@@ -13,7 +13,13 @@ Solver solver = new Solver();
 foreach (char c in input)
 {
     solver.ReceiveChar(c);
+    if (solver.DoneProcessing())
+    {
+        Console.WriteLine("Done!");
+        break;
+    }
 }
+
 Console.WriteLine(solver.StartOfPacketLoc);
 Console.WriteLine(solver.StartOfMessageLoc);
 
@@ -23,7 +29,7 @@ class CircularBuffer<T> : IEnumerable<T>
     public int Count { get; private set; }
 
     private readonly T[] Buffer;
-    private readonly int Capacity = 0;
+    public readonly int Capacity = 0;
 
     private int Head = 0;
 
@@ -61,6 +67,8 @@ class Solver
     private readonly CircularBuffer<char> PacketBuffer = new CircularBuffer<char>(4);
     private readonly CircularBuffer<char> MessageBuffer = new CircularBuffer<char>(14);
 
+    // Not very robust for buffer sizes > 32, obviously, but for these problems,
+    // I'm a little inclined to just optimize for the known case for fun
     private static bool IsBufferUnique(CircularBuffer<char> buffer)
     {
         int bitFlag = 0;
@@ -77,6 +85,11 @@ class Solver
         return true;
     }
 
+    public bool DoneProcessing()
+    {
+        return StartOfPacketLoc != -1 && StartOfMessageLoc != -1;
+    }
+
     public void ReceiveChar(char input)
     {
         CharsProcessed += 1;
@@ -84,12 +97,12 @@ class Solver
         PacketBuffer.Add(input);
         MessageBuffer.Add(input);
 
-        if (StartOfPacketLoc == -1 && CharsProcessed >= 4 && IsBufferUnique(PacketBuffer) )
+        if (StartOfPacketLoc == -1 && CharsProcessed >= PacketBuffer.Capacity && IsBufferUnique(PacketBuffer) )
         {
             StartOfPacketLoc = CharsProcessed;
         }
 
-        if (StartOfMessageLoc == -1 && CharsProcessed >= 14 && IsBufferUnique(MessageBuffer))
+        if (StartOfMessageLoc == -1 && CharsProcessed >= MessageBuffer.Capacity && IsBufferUnique(MessageBuffer))
         {
             StartOfMessageLoc = CharsProcessed;
         }
