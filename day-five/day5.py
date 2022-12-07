@@ -6,7 +6,7 @@ with open("input.txt") as f:
     input = f.readlines()
 
 
-def find_key_index():
+def find_key_index() -> int:
     i = 0
     for line in input:
         if len(line) == 1 and line.isspace():
@@ -22,7 +22,7 @@ def find_key_index():
 key_index = find_key_index()
 
 
-def build_stacks(input, key_index):
+def build_stacks(input, key_index) -> list:
     stack_positions = {}
 
     for idx, c in enumerate(input[key_index]):
@@ -62,7 +62,15 @@ class Solver(ABC):
         move_source = int(movement_procedure[1])
         move_target = int(movement_procedure[2])
 
-        return (move_count, move_source, move_target)
+        ret = (move_count, move_source, move_target)
+
+        print(ret)
+
+        second_space_pos = line.find(" ", len("move ") )
+        move_count_2 = line[len("move "): second_space_pos ]
+        print(move_count_2)
+
+        return ret
 
     def solve(self):
         for move in self.move_instructions:
@@ -74,7 +82,7 @@ class Solver(ABC):
                                            source_stack,
                                            target_stack)
 
-    def print_result(self):
+    def print_result(self) -> None:
         results = []
         for k in self._stacks:
             stack = self._stacks[k]
@@ -83,7 +91,7 @@ class Solver(ABC):
         print("".join(results))
 
     @abstractmethod
-    def consume_move_instructions(self, move_count, source_stack, target_stack):
+    def consume_move_instructions(self, move_count, source_stack, target_stack) -> None:
         pass
 
 
