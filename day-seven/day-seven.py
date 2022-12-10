@@ -1,6 +1,7 @@
 from collections import namedtuple
 
 File = namedtuple("File", "name size")
+
 class Directory(object):
     NEEDED_FREE_SPACE = 0
 
@@ -9,10 +10,11 @@ class Directory(object):
         self._files = []
         self._dirs = {}
         self._parent = None
-    
-    def set_parent_dir(self,dir):
+        self._total_size = 0
+
+    def set_parent_dir(self, dir):
         self._parent = dir
-    
+
     def get_parent_dir(self):
         return self._parent
 
@@ -25,23 +27,22 @@ class Directory(object):
             dir = Directory(name)
             dir.set_parent_dir(self)
             self._dirs[name] = dir
-    
+
     def add_file(self, name, size):
         file = File(name, int(size))
         self._files.append(file)
 
-    def cache_total_size(self):
+    def cache_total_sizes(self):
         size = 0
         for file in self._files:
             size += file.size
-        
+
         for dir_name in self._dirs:
             sub_dir = self._dirs[dir_name]
-            size += sub_dir.cache_total_size()
-        
+            size += sub_dir.cache_total_sizes()
+
         self._total_size = size
         return size
-
 
     def part1(self):
         sum = 0
@@ -51,7 +52,7 @@ class Directory(object):
         for dir_name in self._dirs:
             sub_dir = self._dirs[dir_name]
             sum += sub_dir.part1()
-        
+
         return sum
 
     def part2(self):
@@ -67,32 +68,28 @@ class Directory(object):
                 candidate_dir = new_candidate
         return candidate_dir
 
-    def print_tree(self, depth = 0):
+    def print_tree(self, depth=0):
         indent = " " * depth * 2
         print(indent + f"- {self._name} (dir) | total size {self._total_size}")
         for sub_dir_name in self._dirs:
             sub_dir = self._dirs[sub_dir_name]
             sub_dir.print_tree(depth + 1)
-        
+
         indent += "  "
         for file in self._files:
             print(indent + f"- {file.name} (file, size={file.size})")
 
 
 with open("input.txt") as f:
-    input = f.read().splitlines()
+    # skip first line since it's just creating the root
+    input = f.read().splitlines()[1:]
 
 
 root = Directory("/")
-
 current_dir = root
 
 parsing_ls_command = False
-first_line = True
 for line in input:
-    if first_line:
-        first_line = False
-        continue
     if line.startswith("$ "):
         parsing_ls_command = False
         if line.endswith("ls"):
@@ -113,14 +110,15 @@ for line in input:
             current_dir.add_file(name, size)
 
 
-root.cache_total_size()
-#root.print_tree()
+root.cache_total_sizes()
+# root.print_tree()
 
-print(root.part1())
+print("Part 1", root.part1())
 
 FILE_SYSTEM_SIZE = 70000000
 UPDATE_SIZE = 30000000
 Directory.NEEDED_FREE_SPACE = UPDATE_SIZE - (FILE_SYSTEM_SIZE - root._total_size)
 
 dir = root.part2()
-print(dir._name, dir._total_size)
+print("Part 2", dir._total_size)
+
